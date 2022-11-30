@@ -1,0 +1,107 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: UNSRegistry
+    network: {{network}}
+    source:
+      abi: UNSRegistry
+      address: "{{uns_address}}"
+      startBlock: {{uns_startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - NewURI
+        - NewURIPrefix
+        - RemoveReverse
+        - ResetRecords
+        - Set
+        - SetReverse
+        - Transfer
+      abis:
+        - name: UNSRegistry
+          file: ./abis/UNSRegistry.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: NewURI(indexed uint256,string)
+          handler: handleNewURI
+        - event: NewURIPrefix(string)
+          handler: handleNewURIPrefix
+        - event: RemoveReverse(indexed address)
+          handler: handleRemoveReverse
+        - event: ResetRecords(indexed uint256)
+          handler: handleResetRecords
+        - event: Set(indexed uint256,indexed string,indexed string,string,string)
+          handler: handleSet
+        - event: SetReverse(indexed address,indexed uint256)
+          handler: handleSetReverse
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/uns-registry.ts
+  - kind: ethereum
+    name: CNSRegistry
+    network: {{network}}
+    source:
+      abi: CNSRegistry
+      address: "{{cns_address}}"
+      startBlock: {{cns_startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - NewURI
+        - NewURIPrefix
+        - Resolve
+        - Transfer
+      abis:
+        - name: CNSRegistry
+          file: ./abis/CNSRegistry.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: NewURI(indexed uint256,string)
+          handler: handleNewURI
+        - event: NewURIPrefix(string)
+          handler: handleNewURIPrefix
+        - event: Resolve(indexed uint256,indexed address)
+          handler: handleResolve
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/cns-registry.ts
+  - kind: ethereum
+    name: Resolver
+    network: {{network}}
+    source:
+      abi: Resolver
+      startBlock: {{cns_startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ResetRecords
+        - Set
+      abis:
+        - name: Resolver
+          file: ./abis/Resolver.json
+      eventHandlers:
+        - event: ResetRecords(indexed uint256)
+          handler: handleResetRecords
+        - event: Set(indexed uint256,indexed string,indexed string,string,string)
+          handler: handleSet
+        - event: Set(indexed uint256,indexed string,string,indexed uint256)
+          handler: handleSet1
+      file: ./src/resolver.ts

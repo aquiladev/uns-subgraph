@@ -1,0 +1,48 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: UNSRegistry
+    network: {{network}}
+    source:
+      abi: UNSRegistry
+      address: "{{uns_address}}"
+      startBlock: {{uns_startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - NewURI
+        - NewURIPrefix
+        - RemoveReverse
+        - ResetRecords
+        - Set
+        - SetReverse
+        - Transfer
+      abis:
+        - name: UNSRegistry
+          file: ./abis/UNSRegistry.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: NewURI(indexed uint256,string)
+          handler: handleNewURI
+        - event: NewURIPrefix(string)
+          handler: handleNewURIPrefix
+        - event: RemoveReverse(indexed address)
+          handler: handleRemoveReverse
+        - event: ResetRecords(indexed uint256)
+          handler: handleResetRecords
+        - event: Set(indexed uint256,indexed string,indexed string,string,string)
+          handler: handleSet
+        - event: SetReverse(indexed address,indexed uint256)
+          handler: handleSetReverse
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/uns-registry.ts

@@ -1,0 +1,138 @@
+type Domain @entity {
+  id: ID! # The namehash of domain
+  name: String # The human readable name
+  parent: Domain
+  subdomains: [Domain!]! @derivedFrom(field: "parent") # Can count domains from length of array
+  subdomainCount: Int
+  owner: Account!
+  resolver: DomainResolver
+  createdAt: BigInt!
+  events: [DomainEvent!]! @derivedFrom(field: "domain")
+}
+
+type Account @entity {
+  id: ID!
+  reverse: Domain
+  domains: [Domain!]! @derivedFrom(field: "owner")
+}
+
+type DomainResolver @entity {
+  id: ID!
+  domain: Domain
+  address: Bytes! # address
+  records: [Record!] @derivedFrom(field: "resolver")
+  events: [ResolverEvent!]! @derivedFrom(field: "resolver")
+}
+
+type Record @entity {
+  id: ID!
+  resolver: DomainResolver
+  key: String!
+  value: String!
+}
+
+interface DomainEvent {
+  id: Bytes!
+  domain: Domain!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+interface ResolverEvent {
+  id: Bytes!
+  resolver: DomainResolver! # Used to derive relationships to Resolvers
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Approval implements DomainEvent @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  approved: Bytes! # address
+  domain: Domain!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ApprovalForAll @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  operator: Bytes! # address
+  approved: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NewURI implements DomainEvent @entity(immutable: true) {
+  id: Bytes!
+  domain: Domain!
+  uri: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NewURIPrefix @entity(immutable: true) {
+  id: Bytes!
+  prefix: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Resolve implements DomainEvent @entity(immutable: true) {
+  id: Bytes!
+  domain: Domain!
+  resolver: DomainResolver!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transfer implements DomainEvent @entity(immutable: true) {
+  id: Bytes!
+  owner: Account!
+  domain: Domain!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ResetRecords implements ResolverEvent @entity(immutable: true) {
+  id: Bytes!
+  resolver: DomainResolver!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Set implements ResolverEvent @entity(immutable: true) {
+  id: Bytes!
+  resolver: DomainResolver!
+  key: String! # string
+  value: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RemoveReverse @entity(immutable: true) {
+  id: Bytes!
+  account: Account!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetReverse implements DomainEvent @entity(immutable: true) {
+  id: Bytes!
+  account: Account!
+  domain: Domain!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

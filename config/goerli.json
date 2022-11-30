@@ -1,0 +1,7 @@
+{
+  "network": "goerli",
+  "cns_address": "0x801452cFAC27e79a11c6b185986fdE09e8637589",
+  "cns_startBlock": 5986263,
+  "uns_address": "0x070e83FCed225184E67c86302493ffFCDB953f71",
+  "uns_startBlock": 5986282
+}
