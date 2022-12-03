@@ -66,7 +66,7 @@ export function handleNewURI(event: NewURIEvent): void {
 
   const parentNode = getParentNode(event.params.uri);
   if (parentNode && !domain.parent) {
-    const parentDomain = getParentDomain(parentNode, event.block.timestamp);
+    const parentDomain = getParentDomain(parentNode, event);
     if (parentDomain === null) {
       log.error(
         `Parent domain not found ${parentNode} [txHash: ${event.transaction.hash.toHexString()}]`,
@@ -155,6 +155,7 @@ export function handleTransfer(event: TransferEvent): void {
     account = new Account(accountId);
     account.save();
   }
+  domain.registry = event.address;
   domain.owner = account.id;
   domain.save();
 

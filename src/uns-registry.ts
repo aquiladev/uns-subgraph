@@ -264,6 +264,7 @@ export function handleTransfer(event: TransferEvent): void {
     account = new Account(accountId);
     account.save();
   }
+  domain.registry = event.address;
   domain.owner = account.id;
   domain.save();
 

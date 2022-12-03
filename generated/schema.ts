@@ -103,6 +103,15 @@ export class Domain extends Entity {
     this.set("owner", Value.fromString(value));
   }
 
+  get registry(): Bytes {
+    let value = this.get("registry");
+    return value!.toBytes();
+  }
+
+  set registry(value: Bytes) {
+    this.set("registry", Value.fromBytes(value));
+  }
+
   get resolver(): string | null {
     let value = this.get("resolver");
     if (!value || value.kind == ValueKind.NULL) {

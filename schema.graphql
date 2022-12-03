@@ -5,6 +5,7 @@ type Domain @entity {
   subdomains: [Domain!]! @derivedFrom(field: "parent") # Can count domains from length of array
   subdomainCount: Int
   owner: Account!
+  registry: Bytes! # address
   resolver: DomainResolver
   createdAt: BigInt!
   events: [DomainEvent!]! @derivedFrom(field: "domain")

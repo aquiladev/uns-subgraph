@@ -1,4 +1,4 @@
-import { BigInt, ByteArray, crypto, log } from "@graphprotocol/graph-ts";
+import { ByteArray, crypto, ethereum } from "@graphprotocol/graph-ts";
 import { Account, Domain } from "../generated/schema";
 
 const CRYPTO_NODE = ByteArray.fromHexString(
@@ -7,15 +7,15 @@ const CRYPTO_NODE = ByteArray.fromHexString(
 
 export function getParentDomain(
   node: string,
-  timestamp: BigInt
+  event: ethereum.Event
 ): Domain | null {
   let domain = Domain.load(node);
   return domain === null && ByteArray.fromHexString(node).equals(CRYPTO_NODE)
-    ? createCryptoTldDomain(node, timestamp)
+    ? createCryptoTldDomain(node, event)
     : domain;
 }
 
-function createCryptoTldDomain(node: string, timestamp: BigInt): Domain {
+function createCryptoTldDomain(node: string, event: ethereum.Event): Domain {
   const accountId = "0x000000000000000000000000000000000000dead";
   let account = Account.load(accountId);
   if (account === null) {
@@ -25,9 +25,10 @@ function createCryptoTldDomain(node: string, timestamp: BigInt): Domain {
 
   const domain = new Domain(node);
   domain.name = "crypto";
+  domain.registry = event.address;
   domain.owner = account.id;
   domain.subdomainCount = 0;
-  domain.createdAt = timestamp;
+  domain.createdAt = event.block.timestamp;
   domain.save();
 
   return domain;
