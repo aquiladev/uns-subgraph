@@ -24,7 +24,8 @@ import {
   DomainResolver,
   Record,
 } from "../generated/schema";
-import { getParentNode } from "./utils";
+import { getParentNode, ZERO_ADDRESS } from "./utils";
+import { ByteArray } from "@graphprotocol/graph-ts";
 
 export function handleApproval(event: ApprovalEvent): void {
   const node = event.params.tokenId.toHexString();
@@ -83,16 +84,6 @@ export function handleNewURI(event: NewURIEvent): void {
   }
   domain.subdomainCount = 0;
   domain.name = event.params.uri;
-
-  const resolverId = event.address.toHexString().concat(node);
-  let resolver = DomainResolver.load(resolverId);
-  if (resolver === null) {
-    resolver = new DomainResolver(resolverId);
-    resolver.domain = domain.id;
-    resolver.address = event.address;
-    resolver.save();
-  }
-  domain.resolver = resolver.id;
   domain.save();
 
   let entity = new NewURI(
@@ -256,6 +247,19 @@ export function handleTransfer(event: TransferEvent): void {
     domain = new Domain(node);
     domain.createdAt = event.block.timestamp;
     domain.subdomainCount = 0;
+  }
+
+  const from = event.params.from.toHexString();
+  if (ByteArray.fromHexString(from).equals(ZERO_ADDRESS)) {
+    const resolverId = event.address.toHexString().concat(node);
+    let resolver = DomainResolver.load(resolverId);
+    if (resolver === null) {
+      resolver = new DomainResolver(resolverId);
+      resolver.domain = domain.id;
+      resolver.address = event.address;
+      resolver.save();
+    }
+    domain.resolver = resolver.id;
   }
 
   const accountId = event.params.to.toHexString();

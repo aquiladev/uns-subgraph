@@ -1,6 +1,10 @@
 import { ByteArray, crypto, ethereum } from "@graphprotocol/graph-ts";
 import { Account, Domain } from "../generated/schema";
 
+export const ZERO_ADDRESS = ByteArray.fromHexString(
+  "0x0000000000000000000000000000000000000000"
+);
+
 const CRYPTO_NODE = ByteArray.fromHexString(
   "0x0f4a10a4f46c288cea365fcf45cccf0e9d901b945b9829ccdb54c10dc3cb7a6f"
 );
