@@ -157,6 +157,7 @@ export function handleTransfer(event: TransferEvent): void {
   }
   domain.registry = event.address;
   domain.owner = account.id;
+  domain.resolver = null;
   domain.save();
 
   let entity = new Transfer(
