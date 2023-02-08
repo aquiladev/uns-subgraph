@@ -1,4 +1,4 @@
-import { log } from "@graphprotocol/graph-ts";
+import { Bytes, log } from "@graphprotocol/graph-ts";
 import {
   Approval as ApprovalEvent,
   ApprovalForAll as ApprovalForAllEvent,
@@ -155,9 +155,17 @@ export function handleTransfer(event: TransferEvent): void {
     account = new Account(accountId);
     account.save();
   }
+
+  // ignore setOwner (0xab3b87fe)
+  const fnSelector = Bytes.fromUint8Array(
+    event.transaction.input.subarray(0, 4)
+  ).toHexString();
+  if (fnSelector != "0xab3b87fe") {
+    domain.resolver = null;
+  }
+
   domain.registry = event.address;
   domain.owner = account.id;
-  domain.resolver = null;
   domain.save();
 
   let entity = new Transfer(
