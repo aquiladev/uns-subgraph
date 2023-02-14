@@ -160,7 +160,7 @@ function _getKeyMap(input: Bytes): TypedMap<Bytes, string> {
     tuplePrefix.length + fnInput.length
   );
 
-  //concat prefix & original input
+  // concat prefix & original input
   functionInputAsTuple.set(tuplePrefix, 0);
   functionInputAsTuple.set(fnInput, tuplePrefix.length);
   const tupleInputBytes = Bytes.fromUint8Array(functionInputAsTuple);

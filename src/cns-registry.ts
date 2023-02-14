@@ -1,4 +1,4 @@
-import { Bytes, log } from "@graphprotocol/graph-ts";
+import { Bytes, ByteArray, ethereum, log } from "@graphprotocol/graph-ts";
 import {
   Approval as ApprovalEvent,
   ApprovalForAll as ApprovalForAllEvent,
@@ -156,11 +156,44 @@ export function handleTransfer(event: TransferEvent): void {
     account.save();
   }
 
-  // ignore setOwner (0xab3b87fe)
   const fnSelector = Bytes.fromUint8Array(
     event.transaction.input.subarray(0, 4)
   ).toHexString();
-  if (fnSelector != "0xab3b87fe") {
+
+  // CNSRegistry.setOwner               0xab3b87fe
+  // DomainZoneController.mintChild     0x841cb28e
+  if (fnSelector == "0xab3b87fe") {
+    // skip reseting resolver
+  } else if (fnSelector == "0x841cb28e") {
+    const fnInput = event.transaction.input.subarray(4);
+    const tuplePrefix = ByteArray.fromHexString(
+      "0x0000000000000000000000000000000000000000000000000000000000000020"
+    );
+    const functionInputAsTuple = new Uint8Array(
+      tuplePrefix.length + fnInput.length
+    );
+
+    // concat prefix & original input
+    functionInputAsTuple.set(tuplePrefix, 0);
+    functionInputAsTuple.set(fnInput, tuplePrefix.length);
+    const tupleInputBytes = Bytes.fromUint8Array(functionInputAsTuple);
+    const decoded = ethereum.decode(
+      "(address,uint256,string,string[],string[])",
+      tupleInputBytes
+    );
+    if (decoded) {
+      const keys = decoded.toTuple()[3].toStringArray();
+      if (!keys.length) {
+        // reset resolver if no keys
+        domain.resolver = null;
+      }
+    } else {
+      log.error(`Imposible to decode tx ${event.transaction.input}`, [
+        event.transaction.input.toHexString(),
+      ]);
+      throw new Error("aaaa");
+    }
+  } else {
     domain.resolver = null;
   }
 
